@@ -22,7 +22,7 @@ bot.command("results", async (context) => {
 })
 
 bot.command("process", async (context) => {
-  await context.reply("тут будет видос", { parse_mode: "HTML" })
+  await context.reply("test deno deploy, тут будет видос", { parse_mode: "HTML" })
 })
 
 bot.command("about", async (context) => {
