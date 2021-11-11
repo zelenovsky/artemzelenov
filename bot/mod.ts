@@ -1,7 +1,7 @@
-import { Bot, config } from "./deps.ts"
+import { Bot } from "./deps.ts"
 import { resultsText, aboutText, neededText, notNeededText } from "./texts.ts"
 
-const token = config().BOT_TOKEN
+const token = Deno.env.get("BOT_TOKEN") as string
 const bot = new Bot(token)
 
 bot.command("start", (context) => {
