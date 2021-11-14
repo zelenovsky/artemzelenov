@@ -1,32 +1,30 @@
 import { Bot } from "./deps.ts"
-import { resultsText, aboutText, neededText, notNeededText } from "./texts.ts"
+import { buildCommands } from "./commands.ts"
 
 const token = Deno.env.get("BOT_TOKEN") as string
 const bot = new Bot(token)
+const adminChatId = 1768713296
 
-bot.command("start", (context) => {
-  const userName = context.message?.from?.first_name ?? "Незнакомец"
-  context.reply(`Привет, ${userName}!`)
-})
+buildCommands(bot)
 
-bot.command("needed", async (context) => {
-  await context.reply(neededText, { parse_mode: "HTML" })
-})
+bot.on("message", async (context) => {
+  const text = context.msg.text
+  const chatId = context.msg.chat.id
+  const messageId = context.msg.message_id
 
-bot.command("not_needed", async (context) => {
-  await context.reply(notNeededText, { parse_mode: "HTML" })
-})
+  const isMessageFromAdmin = () => chatId === adminChatId
 
-bot.command("results", async (context) => {
-  await context.reply(resultsText, { parse_mode: "HTML" })
-})
+  if (!text) return
 
-bot.command("process", async (context) => {
-  await context.reply("test deno deploy, тут будет видос", { parse_mode: "HTML" })
-})
+  // handle replied messages from admin
+  if (isMessageFromAdmin() && context.msg.reply_to_message) {
+    const senderChatId = context.msg.reply_to_message.forward_from!.id
+    await context.api.sendMessage(senderChatId, text)
+    return
+  }
 
-bot.command("about", async (context) => {
-  await context.reply(aboutText, { parse_mode: "HTML" })
+  // forward all messages to admin
+  await context.api.forwardMessage(adminChatId, chatId, messageId)
 })
 
 bot.start()
